@@ -2,7 +2,7 @@
   "name": "openrocket-cloud-server",
   "version": "1.0.0",
   "private": true,
-  "description": "Collaboration server for OpenRocket Cloud: Google sign-in, projects, live-share hub and OpenRocket session containers",
+  "description": "Collaboration server for OpenRocket Cloud: local accounts, projects, live-share hub and OpenRocket session containers",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "engines": { "node": ">=22.13" },

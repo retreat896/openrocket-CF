@@ -2,8 +2,6 @@
 // stand-in hub (web/test/hub.mjs, used when the page is opened from localhost with ?hub=ws://…).
 // Adds what both pages need on top: large messages in fragments, requests with replies, and
 // "open"/"closed" events (the actor greets every new or re-established connection with "hi").
-import { base44 } from './base44.js';
-
 const FRAG = 400_000;
 
 /** The local test hub, if this page was opened for testing. */
@@ -45,14 +43,21 @@ export class RoomClient {
   }
 
   connectActor() {
-    this.conn = base44.actors.DesignRoom(this.designId).connect({ id: this.connectionId });
-    this.conn.subscribe((msg) => this.receive(msg));
-    // The SDK reconnects by itself; watch its socket to know when the room is unreachable.
-    this.conn.ws?.addEventListener?.('close', () => this.lost('connection lost'));
+    const scheme = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const open = () => {
+      const ws = new WebSocket(`${scheme}//${location.host}/room/${encodeURIComponent(this.designId)}?conn=${encodeURIComponent(this.connectionId)}`);
+      ws.onmessage = (event) => this.receive(JSON.parse(event.data), event.data);
+      ws.onclose = (event) => {
+        this.lost(event.reason || 'connection lost');
+        if (!this.closed) setTimeout(open, 1000);
+      };
+      this.ws = ws;
+    };
+    open();
     this.transport = {
-      sendText: (text) => this.conn.send(JSON.parse(text)),
-      close: () => this.conn.close(),
-      reconnect: () => this.conn.ws?.reconnect?.(),
+      sendText: (text) => this.ws?.readyState === WebSocket.OPEN && this.ws.send(text),
+      close: () => this.ws?.close(),
+      reconnect: () => this.ws?.close(),
     };
   }
 

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Logbook — Rocket in Cloud</title>
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+  <script type="module" crossorigin src="/assets/logbook-DqdCrQOs.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/assets/xml-BSEn9U2z.js">
+  <link rel="modulepreload" crossorigin href="/assets/base44-E-Kd_1xm.js">
+  <link rel="modulepreload" crossorigin href="/assets/plan-Cj4KJ1mA.js">
+  <link rel="modulepreload" crossorigin href="/assets/common-9Jyy8nNr.js">
+  <link rel="stylesheet" crossorigin href="/assets/logbook-DY94Ohnh.css">
+  <link rel="stylesheet" crossorigin href="/assets/style-CwPtxflw.css">
+</head>
+<body class="logbook-page">
+  <header class="topbar">
+    <a class="brand" href="/"><picture><source srcset="/logo-dark.png?v=2" media="(prefers-color-scheme: dark)"><img class="logo" src="/logo.png?v=2" alt=""></picture>Rocket in Cloud</a>
+    <a class="crumb" href="/logbook.html">Logbook</a>
+    <span class="spacer"></span>
+    <span class="me" id="me" hidden></span>
+  </header>
+
+  <main class="page" id="books" hidden>
+    <div class="page-head">
+      <h2>Your logbooks</h2>
+      <span class="spacer"></span>
+      <input class="search" id="book-search" type="search" placeholder="Search logbooks" aria-label="Search logbooks">
+      <a class="btn" href="/" title="Your OpenRocket designs"><span data-icon="rocket"></span>Your designs</a>
+      <a class="btn" href="/planner.html" title="Real-life launch simulation"><span data-icon="target"></span>Launch planner</a>
+      <button class="primary" id="new-book"><span data-icon="plus"></span>New logbook</button>
+    </div>
+    <div class="grid" id="book-grid"></div>
+    <div class="empty" id="books-empty" hidden>
+      <h3>No logbooks yet</h3>
+      <p>Keep a record of each flight: when and where, the rocket and motor, how it went, your altimeter's data next to OpenRocket's simulation and the Launch Planner's prediction, and photos and videos. Share it with your team, or save it as a PDF.</p>
+      <button class="primary" id="new-book-2"><span data-icon="plus"></span>New logbook</button>
+    </div>
+  </main>
+
+  <main class="page lb" id="book" hidden></main>
+
+  <main class="page" id="signed-out" hidden>
+    <h2>Logbook</h2>
+    <p>Sign in on the <a href="/">home page</a> to keep a logbook of your flights.</p>
+  </main>
+
+  <!-- The logbook as printed (Export PDF): filled in just before printing. -->
+  <div class="lb-report" id="report" aria-hidden="true"></div>
+
+</body>
+</html>

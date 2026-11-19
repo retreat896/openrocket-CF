@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.lang.annotation.Annotation;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,18 @@ public class AnnotationFinderImpl implements AnnotationFinder {
 			if (in == null) {
 				throw new IllegalStateException("orcloud/plugins.txt is missing");
 			}
-			BufferedReader r = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+			byte[] content = in.readAllBytes();
+			Charset charset = StandardCharsets.UTF_8;
+			if (content.length >= 2
+					&& ((content[0] == (byte) 0xff && content[1] == (byte) 0xfe)
+					|| (content[0] == (byte) 0xfe && content[1] == (byte) 0xff))) {
+				charset = StandardCharsets.UTF_16;
+			}
+			String text = new String(content, charset);
+			if (text.startsWith("\ufeff")) {
+				text = text.substring(1);
+			}
+			BufferedReader r = new BufferedReader(new StringReader(text));
 			for (String line; (line = r.readLine()) != null;) {
 				if (!line.isBlank()) {
 					classes.add(Class.forName(line.trim(), false, loader));

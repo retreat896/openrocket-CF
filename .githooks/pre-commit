@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+if command -v python3 >/dev/null 2>&1; then
+  python3 scripts/secret_scan.py
+elif command -v python >/dev/null 2>&1; then
+  python scripts/secret_scan.py
+else
+  echo "Secret scan requires Python."
+  exit 1
+fi

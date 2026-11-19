@@ -7,7 +7,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const SECRET = 'test-secret-0123456789';
+const SECRET = 'test-only';
 const dataDir = mkdtempSync(join(tmpdir(), 'orc-frontdoor-'));
 
 // A stand-in for the Base44 site, so registration can be checked too.

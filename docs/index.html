@@ -105,7 +105,7 @@
         <a href="#how">How it works</a>
         <a href="#tour">Code tour</a>
         <a href="#notes">Engineering notes</a>
-        <a href="https://github.com/spacegit09/openrocketcloud">GitHub</a>
+        <a href="https://github.com/retreat896/openrocket-CF">GitHub</a>
       </nav>
     </div>
   </header>
@@ -116,8 +116,8 @@
       <h1>OpenRocket, multiplayer, in the browser.</h1>
       <p class="lead">Rocket in Cloud runs the official OpenRocket 24.12 rocket simulator inside a web browser and lets a team edit one rocket design together in real time. This page is a short guide to how it is built and where things live in the code.</p>
       <div class="cta">
-        <a class="btn primary" href="https://github.com/spacegit09/openrocketcloud">Browse the code</a>
-        <a class="btn" href="https://rocketincloud.com">See it running</a>
+        <a class="btn primary" href="https://github.com/retreat896/openrocket-CF">Browse the code</a>
+        <a class="btn" href="https://openrocket-rust.kris-adams3000.workers.dev">See it running</a>
       </div>
       <div class="shot"><div class="bar"><i></i><i></i><i></i></div><img src="assets/browser-live.jpg" alt="OpenRocket's rocket design window inside a browser page. The toolbar shows two people online and the note “a added Nose Cone”; the component tree and side view show the new nose cone." width="1400" height="900"></div>
       <p class="caption">Person B's browser, a few seconds after person A added a nose cone in theirs. Both are running the real OpenRocket, each in their own browser.</p>
@@ -138,12 +138,12 @@
           </div>
           <div class="arrow"><b>⇄</b>edits over a WebSocket</div>
           <div class="card">
-            <h3>On Base44</h3>
-            <p>One <b>design room</b> per design (a Base44 actor, a Cloudflare Durable Object underneath).</p>
+            <h3>On Cloudflare</h3>
+            <p>One <b>design room</b> per design (a Cloudflare Durable Object).</p>
             <ul>
               <li>Puts everyone's edits in one order, merges them and stores the design.</li>
               <li>Keeps the edit history, saved copies, who is online and what they selected.</li>
-              <li>Base44 also hosts the site, Google sign-in, and the design and motor records.</li>
+              <li>The Rust Worker serves the site and APIs; D1 stores accounts, designs and motors.</li>
             </ul>
           </div>
         </div>
@@ -158,18 +158,18 @@
     <section id="tour">
       <div class="wrap">
         <h2>Code tour</h2>
-        <p class="sub">Where to look first. The <a href="https://github.com/spacegit09/openrocketcloud#readme">README</a> covers building, deploying and configuration.</p>
+        <p class="sub">Where to look first. The <a href="https://github.com/retreat896/openrocket-CF#readme">README</a> covers building, deploying and configuration.</p>
         <div class="table-scroll">
           <table class="tour">
             <thead><tr><th>Path</th><th>What is there</th></tr></thead>
             <tbody>
-              <tr><td><a href="https://github.com/spacegit09/openrocketcloud/tree/main/worker/bridge/src/orcloud/bridge"><code>worker/bridge/src</code></a></td><td>The live-share bridge (Java, no dependencies besides OpenRocket). <code>Bridge.java</code> turns OpenRocket's change events into edits and applies incoming ones; <code>Model.java</code> is the design as a set of objects with ordered children; <code>OrDoc.java</code> holds everything that touches OpenRocket internals.</td></tr>
-              <tr><td><a href="https://github.com/spacegit09/openrocketcloud/tree/main/worker/bridge/web"><code>worker/bridge/web</code></a></td><td>The browser start-up: <code>WebMain.java</code>, <code>BrowserLink.java</code> (the bridge's connection, via JavaScript natives), and the fixes that make OpenRocket run under CheerpJ.</td></tr>
-              <tr><td><a href="https://github.com/spacegit09/openrocketcloud/blob/main/web/base44/actors/DesignRoom/room.js"><code>web/base44/actors/DesignRoom</code></a></td><td>The design room: ordering and merging edits, storage in size-limited pieces, edit history with undo and restore, saved copies, presence.</td></tr>
-              <tr><td><a href="https://github.com/spacegit09/openrocketcloud/blob/main/server/src/model.js"><code>server/src/model.js</code></a>, <a href="https://github.com/spacegit09/openrocketcloud/blob/main/server/src/edits.js"><code>edits.js</code></a></td><td>The design model and edit history in JavaScript (with <code>history.js</code>, which changes are undone), shared by the room and the Node server. Kept identical in behaviour to <code>Model.java</code> (checked by parity tests).</td></tr>
-              <tr><td><a href="https://github.com/spacegit09/openrocketcloud/tree/main/web/src"><code>web/src</code></a></td><td>The dashboard and design page (plain JavaScript), starting OpenRocket in the page (<code>java.js</code>), and reading and writing <code>.ork</code> zip files in the browser (<code>lib/</code>).</td></tr>
-              <tr><td><a href="https://github.com/spacegit09/openrocketcloud/tree/main/scripts"><code>scripts</code></a></td><td><code>build-web-jars.sh</code> builds the browser jars; <code>slim-openrocket-jar.py</code> removes what a browser cannot use from the official jar.</td></tr>
-              <tr><td><a href="https://github.com/spacegit09/openrocketcloud/tree/main/server"><code>server</code></a>, <a href="https://github.com/spacegit09/openrocketcloud/tree/main/worker"><code>worker</code></a></td><td>The self-hosted version: Node server (Express, Docker sessions, noVNC proxy, live-share hub) and the session image (official jar, Xvnc, bridge).</td></tr>
+              <tr><td><a href="https://github.com/retreat896/openrocket-CF/tree/main/worker/bridge/src/orcloud/bridge"><code>worker/bridge/src</code></a></td><td>The live-share bridge (Java, no dependencies besides OpenRocket). <code>Bridge.java</code> turns OpenRocket's change events into edits and applies incoming ones; <code>Model.java</code> is the design as a set of objects with ordered children; <code>OrDoc.java</code> holds everything that touches OpenRocket internals.</td></tr>
+              <tr><td><a href="https://github.com/retreat896/openrocket-CF/tree/main/worker/bridge/web"><code>worker/bridge/web</code></a></td><td>The browser start-up: <code>WebMain.java</code>, <code>BrowserLink.java</code> (the bridge's connection, via JavaScript natives), and the fixes that make OpenRocket run under CheerpJ.</td></tr>
+              <tr><td><a href="https://github.com/retreat896/openrocket-CF/tree/main/rust/crates/worker"><code>rust/crates/worker</code></a></td><td>The Cloudflare Worker, D1 database adapter and Durable Object design rooms.</td></tr>
+              <tr><td><a href="https://github.com/retreat896/openrocket-CF/blob/main/server/src/model.js"><code>server/src/model.js</code></a>, <a href="https://github.com/retreat896/openrocket-CF/blob/main/server/src/edits.js"><code>edits.js</code></a></td><td>The design model and edit history in JavaScript, shared by legacy server and browser code.</td></tr>
+              <tr><td><a href="https://github.com/retreat896/openrocket-CF/tree/main/web/src"><code>web/src</code></a></td><td>The dashboard and design page (plain JavaScript), starting OpenRocket in the page (<code>java.js</code>), and reading and writing <code>.ork</code> zip files in the browser (<code>lib/</code>).</td></tr>
+              <tr><td><a href="https://github.com/retreat896/openrocket-CF/tree/main/scripts"><code>scripts</code></a></td><td><code>build-web-jars.sh</code> builds the browser jars; <code>slim-openrocket-jar.py</code> removes what a browser cannot use from the official jar.</td></tr>
+              <tr><td><a href="https://github.com/retreat896/openrocket-CF/tree/main/server"><code>server</code></a>, <a href="https://github.com/retreat896/openrocket-CF/tree/main/worker"><code>worker</code></a></td><td>Legacy self-hosted server and Docker session infrastructure.</td></tr>
               <tr><td>Tests</td><td><code>worker/bridge/test/SelfTest.java</code> runs 301 sync checks against the real OpenRocket on all its example designs; <code>server/test</code> includes Java–JavaScript parity tests; <code>web/test</code> tests the room and runs two headless Chrome windows with the real OpenRocket editing one design.</td></tr>
             </tbody>
           </table>
@@ -196,8 +196,8 @@
           </ul>
         </details>
         <details>
-          <summary>Fitting on free hosting</summary>
-          <p>Base44 accepts at most 50 MB per site and the official jar is 83 MB. Most of it is the JavaScript engine behind the <em>Scripting</em> simulation extension plus native libraries for desktop systems, none of which can run in a browser. Removing only those gives a 42 MB jar with OpenRocket's own code untouched. CheerpJ reads it with HTTP range requests, so visitors download only the parts they use.</p>
+          <summary>Fitting on Cloudflare</summary>
+          <p>The official jar is larger than the Worker static-assets limit, so it is stored in R2 and served with HTTP range requests. CheerpJ downloads only the JAR ranges it needs, avoiding large static asset limits.</p>
         </details>
         <details>
           <summary>Keeping editing responsive</summary>
@@ -253,7 +253,7 @@
   <footer>
     <div class="wrap">
       <span>GPL-3.0-or-later. Runs <a href="https://openrocket.info">OpenRocket</a> © the OpenRocket team; not affiliated with or endorsed by the OpenRocket project. Java in the browser by CheerpJ (community edition).</span>
-      <a href="https://github.com/spacegit09/openrocketcloud">github.com/spacegit09/openrocketcloud</a>
+      <a href="https://github.com/retreat896/openrocket-CF">github.com/retreat896/openrocket-CF</a>
     </div>
   </footer>
 </body>

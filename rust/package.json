@@ -1,0 +1,15 @@
+{
+  "name": "openrocket-rust-cloudflare",
+  "private": true,
+  "scripts": {
+    "build:browser": "npm --prefix ../web install && npm --prefix ../web run build && node scripts/copy-browser-dist.mjs",
+    "build:wasm": "cargo build --release --target wasm32-unknown-unknown -p orc-wasm && wasm-bindgen --out-dir worker/public/pkg --target web target/wasm32-unknown-unknown/release/orc_wasm.wasm",
+    "test": "cargo test -p orc-core",
+    "build": "npm run test && npm run build:browser && npm run build:wasm && wrangler deploy --dry-run",
+    "dev": "npm run build:browser && npm run build:wasm && wrangler dev",
+    "deploy": "npm run build:browser && npm run build:wasm && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.50.0"
+  }
+}

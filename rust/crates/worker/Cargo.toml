@@ -1,0 +1,19 @@
+[package]
+name = "orc-worker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+base64.workspace = true
+hmac.workspace = true
+orc-core = { path = "../core" }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+uuid.workspace = true
+worker = { version = "0.9", features = ["d1"] }
+wasm-bindgen = "0.2"

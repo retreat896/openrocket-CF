@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — Rocket in Cloud</title>
+  <meta name="description" content="How Rocket in Cloud collects, uses and protects account and project data.">
+  <link rel="canonical" href="https://openrocket-rust.kris-adams3000.workers.dev/privacy.html">
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+  <script type="module" crossorigin src="/assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
+  <script type="module" crossorigin src="/assets/legal-C3eciWSI.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/style-CwPtxflw.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><picture><source srcset="/logo-dark.png?v=2" media="(prefers-color-scheme: dark)"><img class="logo" src="/logo.png?v=2" alt=""></picture>Rocket in Cloud</a>
+    <a class="crumb" href="/privacy.html">Privacy Policy</a>
+  </header>
+
+  <main class="legal">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: 19 November 2026</p>
+
+    <p>This policy explains what Rocket in Cloud collects, how it uses that information and how you can control or delete it. Rocket in Cloud is an open-source project hosted as a Cloudflare Worker.</p>
+
+    <div class="legal-summary">
+      <h2>The short version</h2>
+      <ul>
+        <li>We collect the account name and email address you provide, a salted password hash and the work you create.</li>
+        <li>There are no paid plans, payment records, advertising trackers or advertising cookies.</li>
+        <li>Designs are visible to the owner and accounts explicitly granted access.</li>
+        <li>You can delete designs and permanently delete your account from the app.</li>
+      </ul>
+    </div>
+
+    <h2>Information we collect</h2>
+    <p><strong>Local account information.</strong> Registration stores your name, lower-case email address, password salt and password hash, account identifiers and login timestamps. Passwords are processed with PBKDF2-HMAC-SHA256 and are never stored in plain text.</p>
+    <p><strong>Projects and collaboration.</strong> We store rocket design model data, project names, edit history, previews, member roles and custom motor files. Live collaboration state is held in Cloudflare Durable Objects while a room is active.</p>
+    <p><strong>Launch planning and logbooks.</strong> When you use these features, data you enter or save may include launch parameters, flight details, notes and generated results.</p>
+    <p><strong>Sessions.</strong> A signed, HTTP-only, SameSite session cookie identifies your account. It is marked Secure on HTTPS connections.</p>
+    <p><strong>Hosting logs.</strong> Cloudflare may process standard request information such as IP address, browser or client type, requested URL, status code and timestamps for delivery, security and reliability.</p>
+
+    <h2>How information is stored</h2>
+    <ul>
+      <li>Account, project, member and edit records are stored in Cloudflare D1.</li>
+      <li>Large application assets, including Java JAR files, may be stored in Cloudflare R2.</li>
+      <li>Active collaboration rooms use Cloudflare Durable Objects.</li>
+      <li>OpenRocket runs in your browser through CheerpJ; rocket calculations and rendering do not require a server-side OpenRocket process.</li>
+    </ul>
+
+    <h2>Sharing and access</h2>
+    <p>Only the project owner and explicitly added members can access a design through the app. Editors can change a design and viewers can open it according to their assigned role. Room presence and edit history may show account names and changes to participants in that design room.</p>
+
+    <h2>Third-party services</h2>
+    <ul>
+      <li><strong>Cloudflare</strong> hosts the Worker and stores data through D1, Durable Objects and R2. Cloudflare processes network and hosting data under its own policies.</li>
+      <li><strong>Leaning Technologies</strong> provides the CheerpJ Java runtime downloaded by your browser. Your browser also contacts its CDN to obtain runtime resources.</li>
+      <li><strong>National Oceanic and Atmospheric Administration (NOAA)</strong> may provide wind and forecast data for launch planning.</li>
+      <li><strong>Map and terrain providers</strong> may receive the location and map area you request when using mapping features.</li>
+    </ul>
+
+    <h2>Cookies and browser storage</h2>
+    <p>Rocket in Cloud uses the signed session cookie described above and browser caching for application assets. It does not set advertising or analytics cookies. Browser storage may also contain ordinary cache entries and page preferences.</p>
+
+    <h2>Retention and deletion</h2>
+    <ul>
+      <li>Work remains stored until you delete it or delete your account.</li>
+      <li>You can delete designs and other app records from the relevant interface.</li>
+      <li>The Account page includes a permanent account deletion action. It removes account credentials, owned projects and project-linked records, memberships and custom motors that it owns.</li>
+      <li>Cloudflare backups or logs may retain information temporarily according to platform retention and recovery processes.</li>
+    </ul>
+
+    <h2>Security</h2>
+    <p>Connections use HTTPS, signed session cookies, server-side authorization checks and role checks for shared projects. No system is perfectly secure, but the service is designed to limit access to authenticated project members.</p>
+
+    <h2>Children</h2>
+    <p>Rocket in Cloud may be used in educational and hobby settings. Schools and parents should supervise use of the service, especially where a student may create or share flight data.</p>
+
+    <h2>Changes</h2>
+    <p>If this policy changes, the updated date above will change and a notice may be posted on the app.</p>
+
+    <h2>Source and licensing</h2>
+    <p>The source code is published at <a href="https://github.com/retreat896/openrocket-CF" target="_blank" rel="noopener">retreat896/openrocket-CF</a>. OpenRocket and bundled open-source components retain their original licenses.</p>
+
+    <h2>Contact</h2>
+    <p>For privacy questions or deletion help, open an issue in the project repository and avoid posting passwords or private data:</p>
+    <p><a href="https://github.com/retreat896/openrocket-CF/issues" target="_blank" rel="noopener">Open a GitHub issue</a></p>
+  </main>
+
+  <footer class="site-foot">
+    <a href="/">Home</a>
+    <span>·</span>
+    <a href="/privacy.html">Privacy Policy</a>
+    <span>·</span>
+    <a href="/terms.html">Terms of Service</a>
+    <span>·</span>
+    <a href="https://github.com/retreat896/openrocket-CF" target="_blank" rel="noopener">GitHub</a>
+  </footer>
+
+</body>
+</html>

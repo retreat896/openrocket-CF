@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Rocket in Cloud — OpenRocket online for rocketry teams</title>
   <meta name="description" content="Run OpenRocket online, even on a Chromebook. Design rockets with your team in real time, predict landings from NOAA forecasts and keep a flight logbook.">
-  <link rel="canonical" href="https://rocketincloud.com/">
+  <link rel="canonical" href="https://openrocket-rust.kris-adams3000.workers.dev/">
   <meta name="theme-color" content="#060a14">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Rocket in Cloud">
   <meta property="og:locale" content="en_US">
   <meta property="og:title" content="Rocket in Cloud — OpenRocket online for rocketry teams">
   <meta property="og:description" content="Run OpenRocket online, even on a Chromebook. Design rockets with your team in real time, predict landings from NOAA forecasts and keep a flight logbook.">
-  <meta property="og:url" content="https://rocketincloud.com/">
-  <meta property="og:image" content="https://rocketincloud.com/tour/og.jpg">
+  <meta property="og:url" content="https://openrocket-rust.kris-adams3000.workers.dev/">
+  <meta property="og:image" content="https://openrocket-rust.kris-adams3000.workers.dev/tour/og.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Rocket in Cloud: OpenRocket in the browser, a launch planner and a flight logbook">
@@ -25,7 +25,7 @@
     // sign-in get it straight from the HTML; src/dashboard.js decides for certain once it has asked
     // who is signed in.
     try {
-      if (localStorage.getItem('base44_access_token') || /[?&]access_token=/.test(location.search)) document.documentElement.classList.remove('tour-first');
+      if (/[?&]access_token=/.test(location.search)) document.documentElement.classList.remove('tour-first');
     } catch {}
     // The host answers any unknown address with this page: keep those out of search results.
     if (!/^\/(index\.html)?$/.test(location.pathname)) {
@@ -42,39 +42,33 @@
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://rocketincloud.com/#organization",
+        "@id": "https://openrocket-rust.kris-adams3000.workers.dev/#organization",
         "name": "Rocket in Cloud",
-        "url": "https://rocketincloud.com/",
-        "logo": "https://rocketincloud.com/logo.png",
-        "email": "flykim73@gmail.com",
-        "sameAs": ["https://github.com/spacegit09/openrocketcloud"]
+        "url": "https://openrocket-rust.kris-adams3000.workers.dev/",
+        "logo": "https://openrocket-rust.kris-adams3000.workers.dev/logo.png",
+        "sameAs": ["https://github.com/retreat896/openrocket-CF"]
       },
       {
         "@type": "WebSite",
-        "@id": "https://rocketincloud.com/#website",
+        "@id": "https://openrocket-rust.kris-adams3000.workers.dev/#website",
         "name": "Rocket in Cloud",
-        "url": "https://rocketincloud.com/",
+        "url": "https://openrocket-rust.kris-adams3000.workers.dev/",
         "inLanguage": "en",
-        "publisher": { "@id": "https://rocketincloud.com/#organization" }
+        "publisher": { "@id": "https://openrocket-rust.kris-adams3000.workers.dev/#organization" }
       },
       {
         "@type": "WebApplication",
-        "@id": "https://rocketincloud.com/#app",
+        "@id": "https://openrocket-rust.kris-adams3000.workers.dev/#app",
         "name": "Rocket in Cloud",
-        "url": "https://rocketincloud.com/",
-        "image": "https://rocketincloud.com/tour/og.jpg",
+        "url": "https://openrocket-rust.kris-adams3000.workers.dev/",
+        "image": "https://openrocket-rust.kris-adams3000.workers.dev/tour/og.jpg",
         "description": "OpenRocket 24.12 in the browser, with live co-editing, launch planning on NOAA wind forecasts and a flight logbook.",
         "applicationCategory": "DesignApplication",
         "operatingSystem": "Windows, macOS, Linux, ChromeOS",
         "browserRequirements": "Requires a modern web browser",
-        "publisher": { "@id": "https://rocketincloud.com/#organization" },
-        "offers": [
-          { "@type": "Offer", "name": "OpenRocket", "description": "OpenRocket only, for one person, paid once", "price": "1.00", "priceCurrency": "USD" },
-          { "@type": "Offer", "name": "Monthly", "description": "Everything, for one person, US$1 a month", "price": "1.00", "priceCurrency": "USD",
-            "priceSpecification": { "@type": "UnitPriceSpecification", "price": "1.00", "priceCurrency": "USD", "billingDuration": "P1M" } },
-          { "@type": "Offer", "name": "Individual", "description": "Everything, for one person, paid once", "price": "5.00", "priceCurrency": "USD" },
-          { "@type": "Offer", "name": "Group", "description": "Everything, for 10 people, paid once", "price": "10.00", "priceCurrency": "USD" }
-        ]
+        "publisher": { "@id": "https://openrocket-rust.kris-adams3000.workers.dev/#organization" },
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
       }
     ]
   }
@@ -92,23 +86,23 @@
   <header class="t-nav">
     <div class="t-wrap">
       <a class="t-brand" href="/"><img src="/logo-dark.png?v=2" alt="" width="30" height="30">Rocket in Cloud</a>
-      <nav class="t-links" aria-label="Features"><a href="/features/openrocket.html">OpenRocket</a><a href="/features/launch-planner.html">Launch Planner</a><a href="/features/logbook.html">Logbook</a><a href="#pricing">Pricing</a></nav>
+      <nav class="t-links" aria-label="Features"><a href="/features/openrocket.html">OpenRocket</a><a href="/features/launch-planner.html">Launch Planner</a><a href="/features/logbook.html">Logbook</a><a href="/privacy.html">Privacy</a></nav>
       <span class="t-spacer"></span>
-      <button type="button" class="t-btn small primary" data-signin data-signed-in="Open the app"><svg class="g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span><span class="long">Sign in with </span>Google</span></button>
+      <button type="button" class="t-btn small primary" data-signin data-signed-in="Open the app"><span>Sign in</span></button>
     </div>
   </header>
   <main>
   <section class="t-hero">
     <div class="t-wrap">
       <div class="t-notice" id="signin-error" hidden></div>
-      <span class="t-eyebrow"><b>OpenRocket 24.12</b> · in your browser · free for a week</span>
+      <span class="t-eyebrow"><b>OpenRocket 24.12</b> · in your browser · completely free</span>
       <h1>Design, simulate and log your rockets <span class="t-grad">with your team</span></h1>
       <p class="t-lead">Rocket in Cloud runs OpenRocket 24.12 in the browser and adds live co-editing, launch planning with NOAA wind forecasts, and a flight logbook that compares your altimeter data with the simulation.</p>
-      <div class="t-ctas"><button type="button" class="t-btn primary" data-signin data-signed-in="Open your designs"><svg class="g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Sign in with Google</span></button><a class="t-btn" href="#tools">Take the tour <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+      <div class="t-ctas"><button type="button" class="t-btn primary" data-signin data-signed-in="Open your designs"><span>Sign in</span></button><a class="t-btn" href="#tools">Take the tour <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
       <p class="t-fine">Runs in a modern browser on Windows, macOS, Linux and ChromeOS · Nothing to install</p>
       <p class="t-fine">By signing in, you agree to the <a href="/terms.html">Terms of Service</a> and the <a href="/privacy.html">Privacy Policy</a></p>
       <div class="t-stage t-reveal">
-        <figure class="t-shot"><div class="t-shot-bar"><i></i><i></i><i></i><span>rocketincloud.com — Falcon II two-stage</span></div><img src="/tour/or-live.webp" fetchpriority="high" alt="Three people editing the same two-stage rocket in OpenRocket, in the browser, with the 3D view open" width="1800" height="1125" decoding="async"></figure>
+        <figure class="t-shot"><div class="t-shot-bar"><i></i><i></i><i></i><span>Rocket in Cloud — Falcon II two-stage</span></div><img src="/tour/or-live.webp" fetchpriority="high" alt="Three people editing the same two-stage rocket in OpenRocket, in the browser, with the 3D view open" width="1800" height="1125" decoding="async"></figure>
         <img class="t-float t-people" src="/tour/or-people.webp" alt="Who is here: Joon Lee, Sora Kim and Mina Park, each with the part they have selected, and the recent changes" width="660" height="720" loading="lazy" decoding="async">
       </div>
     </div>
@@ -202,51 +196,25 @@
         <h2>Sharing, privacy and files</h2>
       </div>
       <div class="t-grid">
-        <div class="t-card t-reveal"><h3>Share by email</h3><p>Invite teammates with their Google account as “Can edit” or “Can view”. Viewers watch every change live without touching the design.</p></div>
+        <div class="t-card t-reveal"><h3>Share by email</h3><p>Invite teammates with their local account as “Can edit” or “Can view”. Viewers watch every change live without touching the design.</p></div>
         <div class="t-card t-reveal"><h3>Encrypted storage</h3><p>Designs, motors, launch plans and logbooks are stored encrypted. Only you and the people you share with can open them.</p></div>
         <div class="t-card t-reveal"><h3>Automatic saving and history</h3><p>Saving is continuous, every change is in the history, and a saved copy is kept every 10 minutes while people edit.</p></div>
         <div class="t-card t-reveal"><h3>Import and export .ork files</h3><p>Upload any .ork file and download it again at any time. It opens in desktop OpenRocket as usual.</p></div>
         <div class="t-card t-reveal"><h3>Works on school computers</h3><p>Nothing to install and no admin rights needed: OpenRocket runs right in the browser.</p></div>
-        <div class="t-card t-reveal"><h3>Free first week</h3><p>Every account starts with a free week of everything, no card needed. Then <a href="#pricing">US$1 a month, or pay once</a>.</p></div>
+        <div class="t-card t-reveal"><h3>Completely free</h3><p>Every included feature is available to every account, with no subscription or payment.</p></div>
       </div>
     </div>
   </section>
 
-  <section class="t-section alt" id="pricing">
+  <section class="t-section alt" id="free">
     <div class="t-wrap">
       <div class="t-head t-reveal">
-        <span class="t-kicker">Pricing</span>
-        <h2>Free for the first week, then from US$1</h2>
-        <p>Every account starts with a free week of everything, no card needed. After that, pay monthly, or pay once and keep it.</p>
+        <span class="t-kicker">Free</span>
+        <h2>Every feature is included</h2>
+        <p>No subscription, no checkout and no paid tier. Create an account and use OpenRocket, live co-editing, the Launch Planner and the Logbook.</p>
       </div>
-      <div class="t-prices">
-        <div class="t-price t-reveal">
-          <span class="name">OpenRocket</span>
-          <div class="amount"><b>US$1</b><span>once</span></div>
-          <p>OpenRocket in your browser, for one person, for good.</p>
-          <ul><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>OpenRocket with live co-editing, sharing and the built-in tools</span></li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Without the Launch Planner and the Logbook</span></li></ul>
-        </div>
-        <div class="t-price t-reveal">
-          <span class="name">Monthly</span>
-          <div class="amount"><b>US$1</b><span>a month</span></div>
-          <p>Everything in Rocket in Cloud, for one person.</p>
-          <ul><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>OpenRocket, the Launch Planner and the Logbook</span></li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Cancel at any time</span></li></ul>
-        </div>
-        <div class="t-price featured t-reveal">
-          <span class="name">Individual</span>
-          <div class="amount"><b>US$5</b><span>once</span></div>
-          <p>Everything in Rocket in Cloud, for one person.</p>
-          <ul><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>OpenRocket, the Launch Planner and the Logbook</span></li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Pay once, no subscription</span></li></ul>
-        </div>
-        <div class="t-price t-reveal">
-          <span class="name">Group</span>
-          <div class="amount"><b>US$10</b><span>once, for 10 people</span></div>
-          <p>For a team or class: you and 9 others, with permanent access.</p>
-          <ul><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Add people by their Google account’s address, in your plan’s settings</span></li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Change the list at any time</span></li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>More than 10 people? US$3 for each extra person, once</span></li></ul>
-        </div>
-      </div>
-      <div class="t-ctas t-reveal"><button type="button" class="t-btn primary" data-signin data-signed-in="See your plan" data-signed-in-href="/account.html"><span>Start your free week</span></button></div>
-      <p class="t-fine t-price-note">Prices in US dollars; refunds within 14 days (<a href="/refunds.html">Refund Policy</a>). Payments are handled by Paddle: its checkout shows the price in your currency where it can, adds VAT or sales tax where your country requires it, and takes cards, and in many countries PayPal, Apple Pay and Google Pay. People who joined before plans began keep using Rocket in Cloud free.</p>
+      <div class="t-ctas t-reveal"><button type="button" class="t-btn primary" data-signin data-signed-in="Open your designs"><span>Create an account</span></button></div>
+      <p class="t-fine t-price-note">This project is open source under GPL-3.0-or-later. <a href="https://github.com/retreat896/openrocket-CF" target="_blank" rel="noopener">View it on GitHub</a>.</p>
     </div>
   </section>
 
@@ -254,9 +222,9 @@
     <div class="t-wrap">
       <div class="box t-reveal">
         <h2>Get started</h2>
-        <p>Sign in with Google, then start from one of OpenRocket’s example designs or upload your own .ork file.</p>
-        <div class="t-ctas"><button type="button" class="t-btn primary" data-signin data-signed-in="Open your designs"><svg class="g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Sign in with Google</span></button></div>
-        <p class="t-fine">Free for a week · Sign in with a Google account · Nothing to install</p>
+        <p>Sign in, then start from one of OpenRocket’s example designs or upload your own .ork file.</p>
+        <div class="t-ctas"><button type="button" class="t-btn primary" data-signin data-signed-in="Open your designs"><span>Sign in</span></button></div>
+        <p class="t-fine">D1 account · Nothing to install</p>
       </div>
     </div>
   </section>
@@ -274,11 +242,11 @@
         </div>
         <div>
           <h4>Project</h4>
-          <ul><li><a href="https://github.com/spacegit09/openrocketcloud" target="_blank" rel="noopener">Source code</a></li><li><a href="https://github.com/spacegit09/openrocketcloud/issues" target="_blank" rel="noopener">Feedback</a></li><li><a href="mailto:flykim73@gmail.com">Contact: flykim73@gmail.com</a></li></ul>
+          <ul><li><a href="https://github.com/retreat896/openrocket-CF" target="_blank" rel="noopener">Source code</a></li><li><a href="https://github.com/retreat896/openrocket-CF/issues" target="_blank" rel="noopener">Feedback</a></li><li><a href="https://github.com/retreat896/openrocket-CF/blob/main/LICENSE" target="_blank" rel="noopener">License</a></li></ul>
         </div>
         <div>
           <h4>Legal</h4>
-          <ul><li><a href="/privacy.html">Privacy Policy</a></li><li><a href="/terms.html">Terms of Service</a></li><li><a href="/refunds.html">Refund Policy</a></li></ul>
+          <ul><li><a href="/privacy.html">Privacy Policy</a></li><li><a href="/terms.html">Terms of Service</a></li></ul>
         </div>
       </div>
       <div class="t-legal">
@@ -311,7 +279,6 @@
         </div>
       </div>
     </div>
-    <div class="plan-banner" id="plan-banner" role="status" hidden></div>
     <div class="grid" id="projects"></div>
     <div class="empty" id="empty" hidden>
       <h3>No designs yet</h3>
@@ -328,9 +295,7 @@
     <span>·</span>
     <a href="/terms.html">Terms of Service</a>
     <span>·</span>
-    <a href="/refunds.html">Refund Policy</a>
-    <span>·</span>
-    <a href="mailto:flykim73@gmail.com">Contact: flykim73@gmail.com</a>
+    <a href="https://github.com/retreat896/openrocket-CF" target="_blank" rel="noopener">GitHub</a>
   </footer>
 
   <script type="module" src="/src/dashboard.js"></script>

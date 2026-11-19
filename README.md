@@ -1,568 +1,105 @@
-# Rocket in Cloud
+# OpenRocket Cloud
 
-The real [OpenRocket](https://openrocket.info) with **live sharing and account sync**: sign in with a Google account,
-open a rocket design, and edit it together with your team in real time. Everyone runs the genuine
-OpenRocket 24.12, with the same physics engine, the same windows and dialogs, and the same results.
-The only addition is that everyone's edits appear in everyone else's OpenRocket within a moment.
+OpenRocket Cloud runs the real OpenRocket 24.12 in the browser and adds local accounts,
+Cloudflare storage and live multi-user design rooms. The service is free to use.
 
-**Live:** <https://rocketincloud.com> · **About the code:**
-<https://spacegit09.github.io/openrocketcloud/>
+**Live deployment:** https://openrocket-rust.kris-adams3000.workers.dev
 
-There are two ways to run it:
+**Source and issue tracker:** https://github.com/retreat896/openrocket-CF
 
-- **In the browser, on Base44** (what the live site uses): OpenRocket runs inside each person's
-  browser, and Base44 hosts the site, sign-in and live sharing. No server of your own. See
-  [Browser version on Base44](#browser-version-on-base44-no-server).
-- **Self-hosted with Docker**: each person gets OpenRocket on your server, streamed to their
-  browser. Full desktop speed, and Photo Studio (which needs OpenGL). Most of this README covers
-  this version.
+## How it works
 
-## How the self-hosted version works
+- OpenRocket remains the official Java application, run in the browser by CheerpJ.
+- The live-share bridge is compiled from `worker/bridge` and communicates with a
+  Cloudflare Durable Object.
+- Rust Worker code serves the frontend and APIs and coordinates D1 and R2.
+- Cloudflare D1 stores accounts, projects, memberships, edit history and previews.
+- Cloudflare R2 stores the large JAR assets and serves range requests.
+- Every account and included feature is free. There is no subscription or checkout.
 
-```
- Browser (any OS)                       Server (Docker host)
-┌──────────────────────┐   HTTPS   ┌────────────────────────────┐   Docker   ┌──────────────────────────────┐
-│ Dashboard: designs,  │──────────▶│ Node server                │──────────▶│ One container per person      │
-│ sharing, upload/down │           │  • Google sign-in          │           │ per open design:              │
-│                      │           │  • projects, sharing, DB   │   VNC     │  Xvnc + openbox               │
-│ Session: OpenRocket  │◀──────────│  • VNC proxy (authorised)  │◀─────────▶│  OpenRocket-24.12.jar         │
-│ screen (noVNC) +     │    SSE    │  • live-share hub ◀────────┼───────────┤  (official, unmodified)      │
-│ presence & activity  │◀──────────│    (orders & merges edits) │ WebSocket │  + live-share bridge (same JVM)│
-└──────────────────────┘           └────────────────────────────┘           └──────────────────────────────┘
-```
+## Repository layout
 
-- **Unchanged OpenRocket.** The session image downloads the official `OpenRocket-24.12.jar`
-  (checksum-pinned) and runs it as is. Nothing in OpenRocket is reimplemented or patched.
-- **Live share bridge** (`worker/bridge`). A small Java module starts OpenRocket in the same JVM
-  and watches the open design. When you edit, OpenRocket's own change events say which components
-  you touched. The bridge snapshots the design with OpenRocket's own `.ork` writer and sends only
-  what changed, one component property at a time. Remote edits are applied with the same property
-  setters OpenRocket's file loader uses, in place, so dialogs you have open stay open. Structural
-  changes (adding, removing or moving parts) reload the rocket the way OpenRocket's undo does.
-- **Merging.** The server puts all edits to a design in one order and keeps the authoritative copy.
-  Different properties merge cleanly; for the same property at the same moment, the last edit wins.
-  Edits made while offline are re-sent when the connection returns.
-- **Undo** reverts your own edits only. OpenRocket's undo restores a whole-rocket snapshot, so the
-  bridge keeps collaborators' later changes instead of rolling them back.
-- **Simulations** are shared, results included. OpenRocket re-runs out-of-date simulations by itself
-  after every change. Each result records the exact design it was computed for, so results for an
-  older version of the design are shown as out of date and never as current.
-
-## Browser version on Base44 (no server)
-
-`web/` is a second way to run Rocket in Cloud: OpenRocket runs inside each person's browser
-([CheerpJ](https://cheerpj.com), Java in WebAssembly), and [Base44](https://base44.com) hosts
-everything else for free: the website, Google sign-in, the design list and sharing, custom motors,
-and live sharing. Nothing runs on your own computer or server.
-
-```
- Browser (each person)                                     Base44
-┌──────────────────────────────────┐   WebSocket   ┌──────────────────────────────┐
-│ OpenRocket-web.jar (CheerpJ)     │◀────────────▶│ DesignRoom actor, one per    │
-│  + live-share bridge (BrowserLink)│  via the page │ design: orders and merges    │
-│ dashboard / design page          │               │ edits, stores the design,    │
-└──────────────────────────────────┘               │ edit history, saved copies   │
-                                                   │ Design + Motor records       │
-                                                   └──────────────────────────────┘
+```text
+rust/
+  crates/core/       Shared Rust model and .ork helpers
+  crates/wasm/       Browser-facing Rust/WebAssembly package
+  crates/worker/     Cloudflare Worker, D1 and Durable Object implementation
+  migrations/        D1 schema migrations
+  wrangler.toml      Worker, D1, R2 and Durable Object configuration
+web/
+  src/               Browser application and CheerpJ adapter
+  public/            Images and browser assets
+  features/          Public feature pages
+  privacy.html       Privacy policy
+  terms.html         Terms of service
+worker/bridge/
+  src/               Java live-share model and bridge
+  web/               CheerpJ-specific browser fixes
+scripts/
+  build-web-jars.sh  Builds the OpenRocket and bridge JARs
+  slim-openrocket-jar.py
+OpenRocket/          OpenRocket source archive
+CFWorker/            Legacy Cloudflare Worker material
 ```
 
-- **Same OpenRocket.** `scripts/build-web-jars.sh` makes `OpenRocket-web.jar` from the official
-  jar by removing only what a browser cannot use: native libraries for Windows, macOS and Linux,
-  the GraalJS engine behind the *Scripting* simulation extension, and Photo Studio's sky images.
-  Simulation results match desktop OpenRocket (checked to 8–13 significant digits).
-- **Quick to open.** CheerpJ reads a jar in 128 KB pieces as Java asks for classes. The files
-  OpenRocket reads while it starts (`scripts/openrocket-startup.txt`, about 7 MB, found with
-  `scripts/startup-order.py`) are written first in `OpenRocket-web.jar`, and the design page has
-  its service worker (`web/public/sw.js`) download them, with the jar's directory, in parallel as
-  soon as the page opens; the worker keeps them for later visits. Before, start-up read 20 MB of
-  the jar in about 120 requests, one after another. CheerpJ 5.0 runs OpenRocket's start-up about 20%
-  faster than 4.3. `web/test/perf.mjs` measures start-up (`PERF_NET` and `PERF_CPU` emulate a slow
-  connection or computer); on 150 ms / 10 Mbit/s it went from 64 s to 36 s.
-- **Same live sharing.** The bridge from `worker/bridge` runs unchanged; in the browser its
-  connection goes through the page (`worker/bridge/web/orcloud/bridge/BrowserLink.java`) to the
-  `DesignRoom` Base44 actor, which runs the same merge and edit-history code as the Node hub
-  (`web/base44/actors/DesignRoom/room.js`, using `server/src/model.js` and `edits.js`).
-- **Browser fixes** (`worker/bridge/web`): Java's XML setup is warmed up on one thread, the plugin
-  list is precomputed (OpenRocket's class-path scanner cannot run under CheerpJ), running
-  simulations pause briefly so the window stays responsive, and the 3D view, which OpenRocket draws
-  with OpenGL, is drawn with WebGL (`web/src/view3d-renderer.js`) from meshes made by OpenRocket's
-  own OBJ exporters (`worker/bridge/src/orcloud/view3d`). The main window opens without CheerpJ's
-  title bar, its menu bar moves into the page's top row (`MenuRow.java`, `web/src/menu-row.js`),
-  and the page restyles the dialogs' title bars (`web/src/style.css`). On a Mac, ⌘-click adds parts
-  to the selection in the component tree (and rows in lists and tables), as in OpenRocket for Mac
-  (`CommandClick.java`). Exporting as a 3D file with the "3D printing" settings no longer stops at
-  faces with no area, such as along a filled nose cone's axis, which made OpenRocket 24.12's pod
-  examples fail (a copy of its `TriangulationHelper`; `scripts/test.sh` exports every example so).
-  3D exports also give fins what OpenRocket knows about them but leaves out of its 3D shapes: their
-  cross section (rounded, or an airfoil profile chosen in the export dialog) and their root fillets,
-  of the radius set in each fin set's dialog, on both sides of every fin, running out at the fins'
-  edges (`AirfoilFin`, `FinFillet`); the 3D view shows them too. A fin set's dialog has a Flutter
-  tab: the fins' flutter speed (Martin's NACA TN 4197 boundary as Bennett corrected it for rockets
-  in Apogee's Peak of Flight 615, with the fin's sweep) from their shape, thickness and material
-  stiffness (typical values for OpenRocket's materials, or your own), and how close each simulation
-  comes to it along its flight, in its own air (`FinFlutter`, `FlutterTab`). Rocket optimization
-  (Tools menu) runs a more accurate search than OpenRocket's (`worker/bridge/src/orcloud/optimization`,
-  with copies of its `GeneralOptimizationDialog` and `OptimizationWorker`). Every design flies in the
-  simulation's own gusts, as running it again would; OpenRocket's copies gave each a new random
-  seed, so the same design could differ by a few tenths of a per cent. It also flies with no coarser
-  a time step than OpenRocket recommends. Limits are followed rather than stopped at, with steps
-  along them worked out from their slopes. Ranges' ends are reached exactly. A quadratic model of
-  the tries made gives steps to the best near it, and a spread of first tries looks for other
-  valleys. On the bundled examples it lands within 0.03 % of the best design known, where
-  OpenRocket's lands up to 19 % short (`OptimizerComparison`). It can also keep the fins' flutter
-  margin above a limit, and offers the fins' thickness as a parameter.
-- **Launch Planner** (`web/planner.html`, `web/src/flight`): OpenRocket runs in the page without
-  its windows (`FlightMain`, `FlightLab`) and computes the rocket's tables
-  (`worker/bridge/src/orcloud/flight/FlightTables.java`): normal force and centre of pressure over
-  Mach number and angle of attack, drag over Mach and Reynolds number, pitch damping, thrust from
-  the motors' curves, mass and inertia over time, recovery devices. A JavaScript copy of
-  OpenRocket's flight simulation (`engine.js`: six degrees of freedom on the way up, OpenRocket's
-  parachute descent) flies those tables about 1,000 times faster, in Web Workers; on OpenRocket's
-  single-stage example designs it matches OpenRocket's apogee within 0.5% and its landing point
-  within 10 m (`scripts/test.sh` checks this). Winds and air come from NOAA's GFS forecast and
-  its GEFS ensemble (both public domain) through the `gfsWinds` backend function, which reads a
-  small area from NOMADS and decodes it (`grib2.js`); the ensemble's files have few heights, so
-  each member's wind is the GFS wind shifted at every height by that member's difference from the
-  members' average (`ensembleWinds`). Saved launch plans are SavedFlight records (gzip-compressed,
-  about 10 KB for 500 flights); ground heights from the Terrain Tiles on AWS Open Data; the map is
-  CesiumJS with Esri World Imagery (set `VITE_ARCGIS_API_KEY` in `web/.env` to your ArcGIS
-  Location Platform key, restricted to your site's addresses).
-- **Limits:** no Photo Studio (it needs OpenGL); OpenRocket takes 15–25 s to open on a fast connection and computer, longer on slow ones, because CheerpJ downloads about 25 MB of its Java runtime from its CDN on each visit (browsers keep little of it); simulations
-  run about 15× slower than desktop (1–4 s each), so "Update flight estimates in design window"
-  and "Run out-dated simulations when you open the simulation tab" are kept off and left out of
-  the settings; *Save As* and exports download straight to your computer. CheerpJ's free Community
-  licence covers personal and non-commercial use, and software published by an individual or a
-  one-person company with a "Built with CheerpJ" credit; other business use needs a licence.
+## Prerequisites
 
-Build and deploy (needs Docker, Node 20+ and the Base44 CLI: `npm install -g base44`):
+- Rust stable with `wasm32-unknown-unknown`
+- Node.js and npm
+- Wrangler
+- A Cloudflare account for deployment
+- Docker only when rebuilding the Java JARs
+
+## Build and test
 
 ```bash
-scripts/build-web-jars.sh       # OpenRocket-web.jar and orcloud-web.jar into web/public/or/
-cd web && npm install
-base44 login
-base44 link --create --name "My OpenRocket"   # once per checkout
-base44 secrets set DATA_KEY=$(openssl rand -base64 32)   # once: seals personal data (keep a copy)
-base44 deploy --build --yes                   # site, actor, records, Google sign-in
+cd rust
+cargo test -p orc-core
+cargo check --target wasm32-unknown-unknown -p orc-wasm
+cargo check --target wasm32-unknown-unknown -p orc-worker
+npm run deploy
 ```
 
-**Privacy in the Base44 dashboard.** Design names, owners and members, design drawings, custom
-motor files, saved launch plans and logbooks are stored sealed: encrypted (AES-256-GCM) with the app's
-`DATA_KEY` secret by the app's backend functions (`designs`, `motors`, `flights`, `logbooks`), so the
-dashboard's Data pages show only ciphertext. Records are found by keyed fingerprints of email
-addresses, which cannot be turned back into addresses without the key, and are created by the
-service role, so their *Created by* is no one. The tables are closed to direct access from
-browsers; the functions check who may do what (`web/base44/shared/api.js`). Base44 gives actors no
-app secrets, so the live-share room reads only what it needs in the clear: who may open a design,
-as Base44 user ids with their roles (`access`, kept by the `designs` function); browsers get the
-custom motor files and save drawings through the `designs` function. Errors are logged without
-their messages, which could quote a record. Designs' contents and edit histories live in the
-room's actor storage, which the dashboard does not show. Logbook photos and videos are Base44
-private files under random names, reached only through links the `logbooks` function signs for an
-hour. What the dashboard still shows: on each
-Design record, which user ids may open it (not its name or anything in it); and Base44's own *Users*
-page (each person's name and Google email, and so the user count) and logs of function calls by
-person. This keeps personal data out of sight of anyone browsing the dashboard; whoever controls
-the app's code and secrets could still deploy code that reads it. Keep a copy of `DATA_KEY`
-somewhere safe: Base44 cannot show it again, and without it the sealed records cannot be read.
-Base44 refuses a record over about 20,000 characters, so sealed values over a kilobyte are
-compressed before they are encrypted, and any still longer than 12,000 characters (flight data,
-big launch plans and motor files, detailed drawings, photo previews) are kept in `SealedPart`
-records of 12,000 characters each (`web/base44/shared/parts.js`); the tests' stand-in for Base44
-refuses big records the same way.
+The deploy command builds the browser bundle, Rust WebAssembly packages and the Worker,
+then uploads assets through Wrangler.
 
-### Plans and payments
+## Cloudflare setup
 
-The live site is paid: every new account gets a **free week**, then needs a plan. Accounts made
-before plans began (15 November 2026, `FREE_BEFORE`) and the app's admins keep using it free.
+The deployment configuration uses:
 
-| Plan | Price | |
-|---|---|---|
-| Monthly | US$1 a month | a subscription, cancelled at any time on the plan page |
-| OpenRocket | US$1 once | for one person, for good: OpenRocket only (not the Launch Planner or the Logbook) |
-| Individual | US$5 once | for one person, for good |
-| Group | US$10 once | the buyer and 9 people they add by Google address on the plan page |
-| Extra place | US$3 once each | one more person in a group |
+- D1 database: `openrocket-rust`
+- R2 bucket: `openrocket-rust-assets`
+- Durable Object: `DESIGN_ROOMS`
+- Worker secret: `SESSION_SECRET`
 
-[Paddle](https://www.paddle.com) sells the plans as merchant of record: its checkout opens over the
-plan page (`web/account.html`), shows the price in the buyer's currency where it can, and collects
-and pays VAT and sales tax in every country. The rules are in `web/base44/shared/billing.js`. The
-`billing` function gives the page its status, makes a Paddle transaction for the plan chosen,
-records it as soon as the buyer has paid, keeps a group's people, and cancels or keeps a monthly
-plan. The `paddleWebhook` function hears from Paddle about payments, renewals, cancellations,
-refunds and chargebacks. Paddle signs each event, and events may come twice, late or out of order;
-each one is applied as the latest news about its purchase, and older news is ignored. These records
-are all closed to browsers, and none holds a card number:
-- `Account`: when someone's free week started, and their Paddle customer id.
-- `Purchase`: one per subscription or one-time purchase.
-- `Group`: its places and members. Members' addresses are sealed. The members it lets in are kept
-  by keyed fingerprint for the functions, and by user id for the actors.
-
-Without a plan, people can still list, download, leave and delete their work. Everything else is
-refused:
-- the functions answer 402 with `code: plan_required`, and the page shows the plans;
-- the design room lets them download a design and its saved copies, but not open it;
-- the Forecasts actor turns them away.
-
-Setting it up (once with a Paddle sandbox account to try it, then with the live account):
+Apply migrations and set the secret as needed:
 
 ```bash
-cd web
-PADDLE_API_KEY=pdl_sdbx_apikey_… node scripts/paddle-setup.mjs --site https://rocketincloud.com \
-  --webhook https://rocketincloud.base44.app/functions/paddleWebhook
-base44 secrets set PADDLE_API_KEY=…          # the three it prints
-base44 secrets set PADDLE_CLIENT_TOKEN=…
-base44 secrets set PADDLE_WEBHOOK_SECRET=…
+cd rust
+npx wrangler d1 migrations apply openrocket-rust --remote
+npx wrangler secret put SESSION_SECRET
+npx wrangler deploy
 ```
 
-Until `PLANS_START` in `web/base44/shared/billing.js` is set, nobody needs a plan. The pricing,
-the plan page and the Terms can then go live first, for Paddle to review the site. Once the live
-account takes payments, set `PLANS_START` to the time plans begin and deploy. Everyone's free week
-counts from then at the earliest.
+The JAR objects must be uploaded to R2 under their configured names:
 
-The script makes the product and its four prices, sets the default payment link (the plan page),
-makes the webhook and a client-side token for Paddle.js, and prints the secrets to set. Running it
-again finds what it made before. Without the secrets the site still works: the free week runs and
-the plan page says payments open soon. A live Paddle account must have the site's domain approved
-before checkouts open there. Test cards for the sandbox are in
-[Paddle's sandbox docs](https://developer.paddle.com/sdks/sandbox).
+- `OpenRocket-web.jar`
+- `orcloud-web-<build-tag>.jar`
 
-To try changes before deploying, run the design page on your computer:
+The Worker serves both as range-request-compatible HTTP responses.
 
-```bash
-node web/scripts/dev-design.mjs                                   # OpenRocket's simple model rocket
-node web/scripts/dev-design.mjs "Two stage high power rocket"     # another bundled example
-node web/scripts/dev-design.mjs ~/rockets/mine.ork ~/rockets/motor.eng   # your design and motors
-```
+## Local accounts
 
-It serves the site with Vite and a local stand-in for the live-sharing room holding that design,
-and prints the address to open (as the design's owner, without signing in; edits last until it
-stops). Changes to the page's JavaScript and CSS show at once. After changing Java
-(`worker/bridge`), run `scripts/build-web-jars.sh` and reload the page.
+Accounts use local email and password registration backed by D1. Passwords are salted and
+hashed with PBKDF2-HMAC-SHA256. A signed HTTP-only session cookie authenticates API and
+WebSocket requests.
 
-Tests: `npm test` (the room, `.ork` handling, the planner's weather decoding, Monte Carlo and
-flight engine; the engine's comparison with OpenRocket needs the fixtures `scripts/test.sh`
-writes) and `node test/e2e.mjs` (two headless Chrome
-windows running the real OpenRocket against a local stand-in for the actor). `node test/motors-e2e.mjs`
-opens designs with custom motors that are missing, changed, unreadable or messily written, and two
-people of whom only one has the motor's file. `node test/billing-e2e.mjs` opens the home page, the
-dashboard, the plan page, the design page, the planner and the logbook as people with each kind of
-plan. It buys, cancels and keeps plans through a stand-in for Paddle's checkout, and fills, overfills
-and changes a group. The billing functions run for real over in-memory stand-ins for Base44 and
-Paddle (`test/fake-paddle.mjs`); `test/billing.test.mjs` covers the same rules with Paddle's events
-arriving twice, late, out of order or forged. `node test/paddle-sandbox-e2e.mjs` makes real purchases in
-your Paddle sandbox (set it up with `scripts/paddle-setup.mjs --webhook none`, and set
-`PADDLE_API_KEY` and `PADDLE_CLIENT_TOKEN`). It goes through Paddle's real checkout with its test
-cards:
-- a declined card;
-- the individual plan;
-- the monthly plan, cancelled and kept;
-- a group plan with two more places.
+The Account page includes a permanent account deletion action.
 
-It then runs Paddle's own records of those purchases through the webhook code and checks they give
-the same plans. `node test/perf.mjs`
-times how long a design takes to open, what it downloads, and how long an edit takes to arrive.
+## Open-source licensing
 
-## Installing the self-hosted version
+This repository is licensed under **GPL-3.0-or-later**. See [LICENSE](LICENSE).
 
-On any machine with Docker (a Linux server for a team, or Docker Desktop on Mac/Windows to try
-it), run:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/spacegit09/openrocketcloud/main/install.sh | bash
-```
-
-The installer asks where people will open it (this computer only, or a public domain with
-automatic HTTPS) and for optional Google sign-in keys. It then downloads ready-made images from
-GitHub Packages and starts everything in `~/openrocketcloud`. Run it again to update; settings and
-designs are kept.
-
-Without Google keys, a local install turns on a test sign-in (any email, localhost only), so you
-can try it right away. To try two people on one computer, use `http://localhost:8080` in one tab
-and `http://127.0.0.1:8080` in another. They keep separate sign-ins.
-
-### Build from source
-
-```bash
-git clone https://github.com/spacegit09/openrocketcloud && cd openrocketcloud
-cp .env.example .env    # set DEV_LOGIN=true to try without Google
-docker compose up -d --build
-```
-
-The first build downloads OpenRocket and a Java runtime (a few minutes). Opening a design starts
-its OpenRocket in about 5–20 seconds.
-
-## Google sign-in
-
-1. Open [Google Cloud Console](https://console.cloud.google.com/), then create or pick a project.
-2. **APIs & Services → OAuth consent screen**: choose *External*, enter the app name and
-   support email, and add the scopes `openid`, `email` and `profile`. While the app is in
-   *Testing*, only the test users you list can sign in. Click **Publish app** to allow any Google
-   account. These basic scopes need no Google review.
-3. **APIs & Services → Credentials → Create credentials → OAuth client ID**, type *Web
-   application*. Under *Authorized redirect URIs* add `PUBLIC_URL` + `/auth/google/callback`, for
-   example `http://localhost:8080/auth/google/callback` and
-   `https://rocket.example.com/auth/google/callback`.
-4. Put the client ID and secret into `.env` (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and
-   run `docker compose up -d`.
-
-To limit who can sign in, set `ALLOWED_EMAIL_DOMAINS=gmail.com,yourschool.org` and/or
-`ALLOWED_EMAILS=a@gmail.com,b@gmail.com`.
-
-## Front door on Base44 (optional)
-
-Instead of setting up Google sign-in yourself, you can put a free [Base44](https://base44.com) site in
-front of the server (`frontdoor/`). People open the Base44 address and sign in with Google there,
-and the site sends them on to OpenRocket with a one-time pass that expires after a minute. The
-server tells the site its current address every time it starts, so the Base44 link keeps working
-even when the server's own address changes (for example a Cloudflare quick tunnel on a laptop).
-Base44 only hosts the sign-in page; OpenRocket itself still runs on your server.
-
-```bash
-npm install -g base44
-cd frontdoor && npm install
-base44 login
-base44 link --create --name "My OpenRocket"
-openssl rand -hex 32                      # the shared secret
-base44 secrets set ENGINE_SECRET=<secret>
-base44 deploy --build --yes               # prints the App URL
-```
-
-Then set `BASE44_APP_URL=<App URL>` and `BASE44_SECRET=<secret>` in `.env` and run
-`docker compose up -d`. The site allows Google accounts only (`frontdoor/base44/auth/config.jsonc`);
-`ALLOWED_EMAIL_DOMAINS` and `ALLOWED_EMAILS` still apply on the server.
-
-## Deploying to the cloud
-
-Any Linux server with Docker works (x86-64 or ARM). For example, a Google Cloud, AWS or DigitalOcean
-VM with 4 vCPUs and 16 GB RAM comfortably serves about 10 people with designs open at once. Each
-open design runs one OpenRocket, typically 0.6–1 GB of RAM, capped by `SESSION_MEMORY_MB`.
-
-1. Point a DNS name (e.g. `rocket.example.com`) at the server and open ports 80 and 443.
-2. Copy this folder to the server, `cp .env.example .env`, and set:
-   `PUBLIC_URL=https://rocket.example.com`, `DOMAIN=rocket.example.com`, the Google client ID and
-   secret, and `DEV_LOGIN=false`.
-3. Start with automatic HTTPS (Caddy and Let's Encrypt):
-
-   ```bash
-   docker compose -f docker-compose.yml -f docker-compose.https.yml up -d --build
-   ```
-
-**Backups.** All designs, sharing and version history live in the `orcloud-data` volume, in one
-SQLite database:
-
-```bash
-docker run --rm -v openrocket-cloud_orcloud-data:/data -v "$PWD":/backup alpine tar czf /backup/orcloud-backup.tgz /data
-```
-
-**Security notes.**
-
-- The server controls Docker through `/var/run/docker.sock` (it starts and stops session
-  containers), so treat the host as dedicated to this app.
-- Session containers run as an unprivileged user with a read-only root filesystem, no Linux
-  capabilities, and memory, CPU and process limits.
-- Session containers sit on an internal network: they can reach the server but not the internet.
-- The live-share hub listens on a separate port that is never published.
-
-## Using it
-
-- **Home page** (browser version, signed out): a dark tour of the site (`web/src/tour.css`,
-  `web/src/tour.js`) with a page for each part: `web/features/openrocket.html` (what the browser
-  version adds to OpenRocket, including the 3D view, STL parts and fin airfoils and fillets), `launch-planner.html` and `logbook.html`. The screenshots in
-  `web/public/tour` were taken from the real pages with made-up people, designs and flights (no
-  one's real data); signed in, the home page is the dashboard as before.
-- **New design**: blank (exactly like OpenRocket's *File → New*), one of OpenRocket's example
-  designs, or upload an `.ork` file (drag and drop works too).
-- **Share**: invite people by their Google email as *Can edit* or *Can view*. Viewers see every
-  change live and can click around, but nothing they change is shared; it snaps back.
-- **Duplicate** (⋯ on a design): a copy of the design as it is now, owned by you and shared with
-  no one, whatever your role on the original (its edit history and saved copies stay behind).
-- **Saving** is continuous. **Download .ork** gives a file that opens in desktop OpenRocket.
-  **Saved copies** keeps a downloadable copy every 10 minutes while people are editing.
-- **Edit history** (clock button in the session, or ⋯ on a design): who changed what and when,
-  e.g. "Nose cone · Length: 10 cm → 14 cm". **Undo these changes** reverts one person's edit,
-  keeping anything changed again since; **Restore to before this** puts the whole design back to
-  that moment. Reverts are shared live. Changes taken back are marked *Undone* (or *Partly undone*,
-  when some of them were changed again) and crossed out, and offer **Redo these changes** instead;
-  a restore offers **Undo this restore**. OpenRocket's automatic simulation re-runs are not listed.
-- **Motors** (dashboard): upload custom motor files (`.eng` RASP or `.rse` RockSim). They appear in
-  OpenRocket's motor selector next to the built-in motors. Everyone a design is shared with gets
-  the custom motors of all its members, so collaborators always see the same motors. Reopen
-  OpenRocket to load motors added while it's open. Files are checked as OpenRocket reads them, so
-  a file it would refuse (say, a manufacturer name with a space, or a curve with two thrusts at one
-  time) is refused with the line and the reason; harmless formatting OpenRocket trips on (a byte
-  order mark, comments after the values, indented comments, lines of spaces) is tidied. Files kept
-  from before this check that OpenRocket can't read are marked in the list. When a design's motor
-  can't be found (its file was removed, or its owner left the design) or its file changed,
-  OpenRocket's *Warnings while opening file* shows as the design opens, and *OK* opens it. A
-  session without one of the design's motors leaves that motor, and the simulations using it, as
-  they are for everyone else.
-- **Settings** (browser version): the *Settings* menu, left of *File*, opens OpenRocket's
-  preferences (General, UI, Design, Simulation, Launch, Units, Materials), as does *Edit →
-  Preferences*. Left out are the options that conflict with the browser version (thrust-curve
-  and component-preset folders, update checks, opening the last design file, importing,
-  exporting or resetting all preferences, an external decal editor and OpenGL) or slow it down
-  (the two above); those stay off. Rocket dimensions are shown in millimetres by default
-  (OpenRocket's own default is centimetres; *Default metric* gives millimetres too).
-- **3D view** (browser version): *View Type → 3D Figure, 3D Unfinished or 3D Finished* under the
-  rocket figure. Drag to turn the rocket, right-drag to move the light, scroll to zoom; click a part
-  to select it (shift-click adds to the selection, reaching past parts already selected), and
-  double-click to edit it.
-- **Recovery** (browser version): *Tools → Recovery…* works from the design, in two tabs.
-  *Parachute*: the diameter that brings it down at a chosen rate (5 m/s under a main, about 25 m/s
-  under a drogue), counting what it brings down (its stage after burnout, with the parachute at that
-  size), the other recovery devices open with it and the air at the landing site, with the landing
-  energy (competitions limit each section to 75 ft·lbf); *Set* changes the parachute. *Ejection
-  charge*: the black powder for the bay around a parachute (between the bulkheads, rings and
-  shoulders in its tube or reaching into it; a coupler with no bulkhead counts as open) at a
-  pressure, from the ideal gas law every online charge calculator uses, allowing for how full the
-  parachute packs the bay: T. Fetter's ground tests ("Using Black Powder for Parachute Deployment",
-  NARCON 2025) found a parachute filling it soaks up so much of the charge's heat that it needs about
-  twice the usual sum, so that is the default. It shows the push on the bulkhead and the shear pins
-  it breaks with a 2× margin (or the pressure that does), taking 2-56 and 4-40 nylon pins at 31 and
-  50 lbf as the other calculators do. `RecoveryCheck` sizes the examples' parachutes and checks
-  OpenRocket's simulation lands them at the rate asked for, and that the charge for each of Fetter's
-  tested bays is at least what separated it and at most twice what ejected it hard.
-- **Ballast** (browser version): *Tools → Ballast…* finds the nose weight at a point in the nose
-  that gives every motor configuration at least the stability wanted, as the design view measures it
-  and with OpenRocket's own mass calculation (so a stage whose mass is overridden keeps its mass while
-  the weight moves its centre of gravity); *Add* puts it in the nose as a mass component named "Nose
-  weight", changed or taken out the same way. Changes made in either window can be undone.
-  `RecoveryCheck` checks the nose weight gives the stability asked for exactly, with and without
-  overridden masses.
-- **3D models** (browser version): *Tools → Import 3D model (STL)…* turns a 3D-printed part into
-  mass and balance. An STL file is only a surface, so you tell it the file's units, which axis runs
-  along the rocket and which end faces the nose, the material, and how it was made (printed walls
-  and infill, solid, or a hollow shell; or enter a known mass). It becomes a new mass component, or
-  the mass and centre of gravity of the selected component (not parachutes, streamers or shock
-  cords). A mass component made from a model is drawn as the model in the 2D and 3D views; its
-  shape is kept with the design, shared with collaborators and included in downloaded .ork files
-  (desktop OpenRocket shows its usual cylinder). The *3D model* tab of its Edit dialog
-  (right-click it, then *Edit*) spins it around the rocket's axis (its radial direction) or around
-  its own axis, turns it end for end, or lays it along another axis of the file, and copies made
-  with Copy and Paste or Duplicate keep the shape. Aerodynamics still come from OpenRocket's own
-  shapes: converting a mesh into them gave drag errors of up to 21% that a finer mesh does not
-  reduce.
-- **Window** (browser version): OpenRocket's window fills the page, with no title bar, and its
-  menus (Settings, File, Edit, Tools, Help) sit in the page's top row after the design's name;
-  on a narrow screen they get a row of their own. The × at the top right of the page closes the
-  design (your last changes are saved first) and goes back to the dashboard, as does the back
-  arrow. Dialogs have a plain title bar with only a close button, as
-  on the desktop; the button that adds files from your computer appears only in file dialogs (for
-  example when choosing a decal image).
-- **Launch Planner** (browser version; *Launch planner* on the dashboard, *Plan a launch* in a
-  design's ⋯ menu, or the target button in a design's header): a real-life launch simulation.
-  *Launch planner* opens on your launch plans, as cards like the dashboard's designs, each with a
-  picture of the plan from above (the pad, the flight's track and where its flights landed); open
-  one, rename or delete it, or start a **New launch plan**. Choose a design and one of its simulations, the launch site (click the map) and time (up to 16
-  days ahead), and the rail; the planner flies it hundreds of times in NOAA's forecast winds for
-  that place and time, varying the motor, drag, mass, parachutes, rail aim and ejection delay, and
-  shows on a satellite map where 50%, 95% and 99% of flights land, with the launch direction (the
-  rail and an arrow the way it leans), the flight path, a replay, apogee and the forecast winds. The wind varies one of two ways: the **ensemble forecast** (NOAA
-  GEFS, the default): each flight flies in one of NOAA's 31 forecasts run from slightly different
-  starting points, so the landing area is as wide as the weather is uncertain that day; or the
-  **forecast with a fixed spread** (NOAA GFS with its speed and direction varied by set amounts),
-  the same margin every day. Landings meet the real ground. **Save this launch plan** keeps a
-  study (settings, forecast and results) among your launch plans, to open again later, or by its
-  link; only you see your launch plans. Single-stage rockets only for now; predictions, not a substitute for
-  the range safety officer.
-- **Logbook** (browser version; *Logbook* on the dashboard and the planner): a record of each flight,
-  kept as logbooks shown as cards (a photo or the flight's altitude curve). A logbook has the flight's
-  details (date, time, location, rocket, motor, weather, outcome), a description and notes, saved as
-  you type. **Pick on map** sets the location on the Launch Planner's satellite map: search for a
-  place (Esri's geocoding) or use your location, then click where you launched; the coordinates go
-  into the field, after the place's name if one is there. **Flight data**: choose what your data has (time first, then altitude, velocity,
-  acceleration and custom columns of your own, each in its unit), and the logbook shows the exact
-  column order, an example and a CSV template; paste the text or open a CSV file, and every
-  mistake is listed by line (a wrong number of values, a decimal comma, a value that is not a
-  number, time going backwards) before anything is saved. It also brings in a design's OpenRocket
-  simulation (its stored results: choose the simulation, stage and quantities) and a Launch
-  Planner plan's nominal flight (filling in the date, time, place and rocket if empty). The graphs
-  overlay every source of each quantity (measured altitude against OpenRocket's and the planner's,
-  in metric or imperial units, with a readout under the pointer), each data set can be shifted in
-  time to line up, hidden or downloaded as CSV, and a table gives each column's highest and lowest
-  values. **Photos and videos** (JPEG, PNG, WebP up to 50 MB; MP4, MOV, WebM and more up to
-  100 MB; Base44's limits) are uploaded as Base44 private files under random names, with a small
-  preview made in the browser; each upload uses about one Base44 integration credit, and taking one
-  out of the logbook does not delete the stored file (Base44 offers no way to). **Share** with
-  editors and viewers like a design; **Export PDF** prints a report of it all (details, notes,
-  data, graphs, photos) through the browser's *Save as PDF*, so every language's text prints.
-  `web/test/logbook.test.mjs` and `logbook-api.test.mjs` check the format and its parser, the
-  imports (against OpenRocket's own example), the graphs and the access rules.
-- **Files**: anything you save or export inside OpenRocket (simulation CSV, PDF reports, RockSim
-  or 3D exports, Save As) appears under the folder button, ready to download.
-  In the browser version they download straight to your computer, once each, under the name you
-  chose (OpenRocket saves designs through a temporary file, which the browser used to download instead:
-  `worker/bridge/web/info/openrocket/core/file/GeneralRocketSaver.java`; empty files are not downloaded).
-- **Who's here**: avatars show who has the design open and which part each person has selected.
-  The bar shows recent changes ("Mina edited Fin set").
-- **Mac keyboards**: ⌘-shortcuts are sent as Ctrl-shortcuts, which is what OpenRocket expects on
-  the Linux machine it runs on. Copy and paste go through your browser's clipboard; allow
-  clipboard access when asked.
-- OpenRocket closes itself after 15 idle minutes (`SESSION_IDLE_MINUTES`). Your work is saved.
-
-What is per person: window layout, selection, open dialogs, undo history, and OpenRocket
-preferences such as units, which are remembered for you across sessions.
-
-## Configuration
-
-| Variable | Default | Meaning |
-|---|---|---|
-| `PUBLIC_URL` | `http://localhost:8080` | Address users open; used for the Google redirect URI and cookie security |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | — | Google OAuth client |
-| `BASE44_APP_URL`, `BASE44_SECRET` | — | Sign in through a Base44 front door instead (see above) |
-| `ALLOWED_EMAIL_DOMAINS`, `ALLOWED_EMAILS` | empty (anyone) | Restrict sign-in |
-| `HTTP_BIND`, `HTTP_PORT` | `127.0.0.1`, `8080` | Where the site listens on the host |
-| `MAX_SESSIONS` | `20` | OpenRocket instances running at once (server-wide) |
-| `MAX_SESSIONS_PER_USER` | `2` | Designs one person can have open at once |
-| `SESSION_MEMORY_MB`, `SESSION_CPUS` | `1536`, `2` | Limits per OpenRocket instance |
-| `SESSION_IDLE_MINUTES` | `15` | Close OpenRocket after this long without a viewer |
-| `DOMAIN` | — | Host name for `docker-compose.https.yml` |
-| `DEV_LOGIN` | `false` | Sign in as any email without Google (localhost only) |
-| `DEBUG_OPS` | `false` | Log every merged edit (server and bridges) |
-
-## Known limits
-
-- Two people changing *the same field* at the same instant: the later one wins.
-- If someone adds, removes or moves parts, other people's open component dialogs close. That is
-  the same thing OpenRocket does on undo.
-- OpenRocket's simulations use a fresh random turbulence seed on every run. A re-run of a simulation
-  that is already up to date stays on your screen and is not broadcast.
-- *File → Open* or *New* inside the cloud OpenRocket opens a separate, unshared window. Shared
-  designs are created on the dashboard.
-- Keyboard input methods (e.g. Korean IME) don't compose through the remote screen. Paste text
-  instead.
-
-## Development
-
-```
-worker/            OpenRocket session image
-  Dockerfile       downloads the official jar, builds the bridge
-  bridge/src/      live-share bridge (Java 17, no dependencies besides OpenRocket); STL reading
-  bridge/web/      browser start-up, CheerpJ fixes and the STL import dialog (BrowserLink, WebMain, ...)
-  bridge/test/     SelfTest: checks the sync model and STL import against real OpenRocket
-  rootfs/          session entrypoint (Xvnc + openbox + OpenRocket), window manager config
-web/               browser version (Base44 project)
-  base44/          DesignRoom actor (room.js), sealed Design, Motor and SavedFlight records and
-                   the functions that reach them (shared/: sealing, access rules), sign-in settings;
-                   plans and payments (shared/billing.js, functions billing and paddleWebhook)
-  src/             dashboard and design page (vanilla JS), .ork zip handling, CheerpJ start-up
-  test/            room tests, access rules and sealing, local stand-in for the actor,
-                   two-browser end-to-end test
-frontdoor/         optional Base44 sign-in site for the self-hosted server
-docs/              GitHub Pages: a guide to the code
-server/            Node 24 server (Express, ws, dockerode, SQLite)
-  src/model.js     server twin of the bridge's Model.java (must stay identical in behaviour)
-  public/          dashboard and session page (vanilla JS, noVNC)
-  test/            parity tests against fixtures generated by the Java self-test
-```
-
-Run everything with `scripts/test.sh`. It runs the bridge self-test inside the worker image
-against the real OpenRocket (all 17 bundled example designs), then the server tests, including
-Java/Node parity. Set `DEBUG_OPS=true` to watch edits flow between sessions in
-`docker compose logs -f server`.
-
-## License
-
-GPL-3.0-or-later, like OpenRocket, which this runs and links against. OpenRocket is © the
-OpenRocket team; see <https://github.com/openrocket/openrocket>. This project is not affiliated
-with or endorsed by the OpenRocket project.
+OpenRocket is copyright by the OpenRocket team and licensed under GPL-3.0. OpenRocket
+Cloud is not affiliated with or endorsed by the OpenRocket project. Third-party libraries
+and runtime components retain their own licenses.

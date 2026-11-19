@@ -7,13 +7,7 @@ import { testHub } from '../room-client.js';
 
 /** { lat, lon, time, ensemble } -> the forecast (see gfsWinds); onProgress(text) while it waits. */
 export async function forecastWinds(request, onProgress = () => {}) {
-  if (!testHub()) {
-    try {
-      return await viaActor(request, onProgress);
-    } catch (e) {
-      if (!e.unreachable) throw e;
-    }
-  }
+  if (!testHub()) onProgress('Getting winds from the forecast service…');
   return viaFunction(request);
 }
 

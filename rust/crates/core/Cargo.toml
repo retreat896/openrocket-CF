@@ -1,0 +1,17 @@
+[package]
+name = "orc-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+base64.workspace = true
+flate2.workspace = true
+hmac.workspace = true
+pbkdf2.workspace = true
+quick-xml.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+uuid.workspace = true
+zip.workspace = true

@@ -167,7 +167,7 @@ export async function shareDialog(projectId, onChange) {
   const form = h('form', { class: 'row' }, email, role, add);
   const done = h('button', {}, 'Done');
   const { close } = modal('Share this design', [
-    h('p', { class: 'hint', style: 'margin:0' }, 'People you add can open the design with their Google account and work on it with you in real time.'),
+    h('p', { class: 'hint', style: 'margin:0' }, 'People you add can open the design with their local account and work on it with you in real time.'),
     form, error, list,
   ], [done]);
   done.onclick = close;

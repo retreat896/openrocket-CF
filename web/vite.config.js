@@ -1,22 +1,20 @@
-import base44 from '@base44/vite-plugin';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [base44()],
   // The design model, edit history and XML code are shared with the Node server (../server/src).
   server: { fs: { allow: ['..'] } },
   build: {
     rollupOptions: {
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
+        auth: resolve(import.meta.dirname, 'auth.html'),
         design: resolve(import.meta.dirname, 'design.html'),
         planner: resolve(import.meta.dirname, 'planner.html'),
         logbook: resolve(import.meta.dirname, 'logbook.html'),
         account: resolve(import.meta.dirname, 'account.html'),
         privacy: resolve(import.meta.dirname, 'privacy.html'),
         terms: resolve(import.meta.dirname, 'terms.html'),
-        refunds: resolve(import.meta.dirname, 'refunds.html'),
         tourOpenrocket: resolve(import.meta.dirname, 'features/openrocket.html'),
         tourPlanner: resolve(import.meta.dirname, 'features/launch-planner.html'),
         tourLogbook: resolve(import.meta.dirname, 'features/logbook.html'),

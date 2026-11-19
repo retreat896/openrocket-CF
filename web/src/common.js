@@ -235,13 +235,13 @@ const SHARE_DESIGN = {
   fn: 'designs',
   get: 'get',
   title: 'Share this design',
-  intro: 'People you add can open the design with their Google account and work on it with you in real time.',
+  intro: 'People you add can open the design with their account and work on it with you in real time.',
 };
 export const SHARE_LOGBOOK = {
   fn: 'logbooks',
   get: 'people',
   title: 'Share this logbook',
-  intro: 'People you add can open the logbook with their Google account: editors can change it and add data, photos and videos; viewers can read it and save it as a PDF.',
+  intro: 'People you add can open the logbook with their local account: editors can change it and add data, photos and videos; viewers can read it and save it as a PDF.',
 };
 
 export const ROCKET_SVG = `<svg viewBox="0 0 300 80" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round">

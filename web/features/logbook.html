@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Rocket flight logbook with altimeter graphs — Rocket in Cloud</title>
   <meta name="description" content="Keep every rocket flight in a logbook: altimeter data in a checked format, graphs against OpenRocket’s simulation and the Launch Planner’s prediction, photos, videos, sharing and PDF export.">
-  <link rel="canonical" href="https://rocketincloud.com/features/logbook.html">
+  <link rel="canonical" href="https://openrocket-rust.kris-adams3000.workers.dev/features/logbook.html">
   <meta name="theme-color" content="#060a14">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Rocket in Cloud">
   <meta property="og:locale" content="en_US">
   <meta property="og:title" content="Rocket flight logbook with altimeter graphs — Rocket in Cloud">
   <meta property="og:description" content="Keep every rocket flight in a logbook: altimeter data in a checked format, graphs against OpenRocket’s simulation and the Launch Planner’s prediction, photos, videos, sharing and PDF export.">
-  <meta property="og:url" content="https://rocketincloud.com/features/logbook.html">
-  <meta property="og:image" content="https://rocketincloud.com/tour/og.jpg">
+  <meta property="og:url" content="https://openrocket-rust.kris-adams3000.workers.dev/features/logbook.html">
+  <meta property="og:image" content="https://openrocket-rust.kris-adams3000.workers.dev/tour/og.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Rocket in Cloud: OpenRocket in the browser, a launch planner and a flight logbook">
@@ -21,7 +21,7 @@
   <link rel="icon" type="image/png" href="/favicon.png?v=2">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
   <script type="application/ld+json">
-  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Rocket in Cloud", "item": "https://rocketincloud.com/"}, {"@type": "ListItem", "position": 2, "name": "Logbook", "item": "https://rocketincloud.com/features/logbook.html"}]}
+  {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Rocket in Cloud", "item": "https://openrocket-rust.kris-adams3000.workers.dev/"}, {"@type": "ListItem", "position": 2, "name": "Logbook", "item": "https://openrocket-rust.kris-adams3000.workers.dev/features/logbook.html"}]}
   </script>
 </head>
 <body class="tour-page">
@@ -30,9 +30,9 @@
   <header class="t-nav">
     <div class="t-wrap">
       <a class="t-brand" href="/"><img src="/logo-dark.png?v=2" alt="" width="30" height="30">Rocket in Cloud</a>
-      <nav class="t-links" aria-label="Features"><a href="/features/openrocket.html">OpenRocket</a><a href="/features/launch-planner.html">Launch Planner</a><a href="/features/logbook.html" aria-current="page">Logbook</a><a href="/#pricing">Pricing</a></nav>
+      <nav class="t-links" aria-label="Features"><a href="/features/openrocket.html">OpenRocket</a><a href="/features/launch-planner.html">Launch Planner</a><a href="/features/logbook.html" aria-current="page">Logbook</a><a href="/privacy.html">Privacy</a></nav>
       <span class="t-spacer"></span>
-      <button type="button" class="t-btn small primary" data-signin data-signed-in="Open the app"><svg class="g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span><span class="long">Sign in with </span>Google</span></button>
+      <button type="button" class="t-btn small primary" data-signin data-signed-in="Open the app"><span>Sign in</span></button>
     </div>
   </header>
   <main>
@@ -41,9 +41,9 @@
       <span class="t-eyebrow"><b>Logbook</b> · flight data, graphs and media</span>
       <h1>A flight logbook for <span class="t-grad-soft">your rockets</span></h1>
       <p class="t-lead">Record each flight’s details, altimeter data, photos and videos, and compare the flight with OpenRocket’s simulation and the Launch Planner’s prediction.</p>
-      <div class="t-ctas"><button type="button" class="t-btn primary" data-signin data-signed-in="Open your designs"><svg class="g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Sign in with Google</span></button><a class="t-btn" href="#data">See how <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+      <div class="t-ctas"><button type="button" class="t-btn primary" data-signin data-signed-in="Open your designs"><span>Sign in</span></button><a class="t-btn" href="#data">See how <svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
       <div class="t-stage t-reveal">
-        <figure class="t-shot"><div class="t-shot-bar"><i></i><i></i><i></i><span>rocketincloud.com — Logbook</span></div><img src="/tour/lb-overview.webp" fetchpriority="high" alt="A logbook for a certification flight: date, place, rocket, motor, weather, notes, and graphs of altitude and velocity from three sources" width="1800" height="1490" decoding="async"></figure>
+        <figure class="t-shot"><div class="t-shot-bar"><i></i><i></i><i></i>        <span>Rocket in Cloud — Logbook</span></div><img src="/tour/lb-overview.webp" fetchpriority="high" alt="A logbook for a certification flight: date, place, rocket, motor, weather, notes, and graphs of altitude and velocity from three sources" width="1800" height="1490" decoding="async"></figure>
       </div>
     </div>
   </section>
@@ -66,7 +66,7 @@
           <p>Add a design’s OpenRocket simulation and a Launch Planner plan with one click each. Each graph overlays all sources of the same quantity, so you can compare the predictions with the measured flight.</p>
           <ul><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Altitude, velocity, acceleration and drift, each on its own graph</span></li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Shift a data set in time to line the curves up</span></li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Metric or imperial units, and a readout under the pointer</span></li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Highest and lowest values of every column in a table</span></li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Hide a data set, or download it again as CSV</span></li></ul>
         </div>
-        <div class="media"><figure class="t-shot"><div class="t-shot-bar"><i></i><i></i><i></i><span>rocketincloud.com — Logbook</span></div><img class="" src="/tour/lb-graphs.webp" alt="Graphs of altitude and velocity from the flight computer, OpenRocket’s simulation and the Launch Planner, overlaid" width="1700" height="1074" loading="lazy" decoding="async"></figure></div>
+        <div class="media"><figure class="t-shot"><div class="t-shot-bar"><i></i><i></i><i></i>        <span>Rocket in Cloud — Logbook</span></div><img class="" src="/tour/lb-graphs.webp" alt="Graphs of altitude and velocity from the flight computer, OpenRocket’s simulation and the Launch Planner, overlaid" width="1700" height="1074" loading="lazy" decoding="async"></figure></div>
       </div>
     </div>
   </section>
@@ -101,9 +101,9 @@
     <div class="t-wrap">
       <div class="box t-reveal">
         <h2>Start a logbook</h2>
-        <p>Sign in with Google to record your flights with their data, graphs, photos and notes.</p>
-        <div class="t-ctas"><button type="button" class="t-btn primary" data-signin data-signed-in="Open your designs"><svg class="g" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Sign in with Google</span></button></div>
-        <p class="t-fine">Free for a week · Sign in with a Google account · Nothing to install · <a href="/#pricing">Pricing</a></p>
+        <p>Sign in with a local account to record flights with their data, graphs, photos and notes.</p>
+        <div class="t-ctas"><button type="button" class="t-btn primary" data-signin data-signed-in="Open your designs"><span>Sign in</span></button></div>
+        <p class="t-fine">Completely free · Local account · Nothing to install</p>
       </div>
     </div>
   </section>
@@ -121,11 +121,11 @@
         </div>
         <div>
           <h4>Project</h4>
-          <ul><li><a href="https://github.com/spacegit09/openrocketcloud" target="_blank" rel="noopener">Source code</a></li><li><a href="https://github.com/spacegit09/openrocketcloud/issues" target="_blank" rel="noopener">Feedback</a></li><li><a href="mailto:flykim73@gmail.com">Contact: flykim73@gmail.com</a></li></ul>
+          <ul><li><a href="https://github.com/retreat896/openrocket-CF" target="_blank" rel="noopener">Source code</a></li><li><a href="https://github.com/retreat896/openrocket-CF/issues" target="_blank" rel="noopener">Feedback</a></li><li><a href="https://github.com/retreat896/openrocket-CF/blob/main/LICENSE" target="_blank" rel="noopener">License</a></li></ul>
         </div>
         <div>
           <h4>Legal</h4>
-          <ul><li><a href="/privacy.html">Privacy Policy</a></li><li><a href="/terms.html">Terms of Service</a></li><li><a href="/refunds.html">Refund Policy</a></li></ul>
+          <ul><li><a href="/privacy.html">Privacy Policy</a></li><li><a href="/terms.html">Terms of Service</a></li></ul>
         </div>
       </div>
       <div class="t-legal">

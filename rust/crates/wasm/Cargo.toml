@@ -1,0 +1,46 @@
+[package]
+name = "orc-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+console_error_panic_hook = "0.1"
+js-sys = "0.3"
+orc-core = { path = "../core" }
+serde_json.workspace = true
+uuid.workspace = true
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = [
+    "console",
+    "Blob",
+    "CloseEvent",
+    "Document",
+    "Element",
+    "ErrorEvent",
+    "Event",
+    "EventTarget",
+    "File",
+    "FileReader",
+    "Headers",
+    "HtmlElement",
+    "HtmlInputElement",
+    "HtmlTextAreaElement",
+    "Location",
+    "MessageEvent",
+    "MouseEvent",
+    "Node",
+    "Request",
+    "RequestInit",
+    "RequestMode",
+    "RequestCredentials",
+    "Response",
+    "Text",
+    "Url",
+    "WebSocket",
+    "Window",
+] }
