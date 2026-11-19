@@ -38,8 +38,10 @@ worker/bridge/
 scripts/
   build-web-jars.sh  Builds the OpenRocket and bridge JARs
   slim-openrocket-jar.py
-OpenRocket/          OpenRocket source archive
-CFWorker/            Legacy Cloudflare Worker material
+  openrocket-startup.txt
+  secret_scan.py      Pre-commit and CI credential scan
+server/src/          Shared model, XML and template helpers
+server/templates/    Blank rocket template
 ```
 
 ## Prerequisites
